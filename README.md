@@ -1,4 +1,4 @@
-# Los siguientes códigos constan de análisis estadísticos sobre diferentes data sites, en el cual se evaluará la capacidad del estudiante de inferir en dichos datos a través de conocimientos de la materia de MAT206.
+# Preguntas a evaluar del Proyecto Final de MAT206.
 
 # Pregunta 1.
 Considere los datos disponibles en el sitio: https://cmustatistics.github.io/data-repository/money/ ames-housing.html\#ames-housing-csv acerca de los precios de las casas en venta en Ames, Iowa, USA. Este conjunto de datos posee los precios de 2930 casas en esa localidad. La variable de interés se denomina SalePrice y corresponde a la última columna de la base de datos.
