@@ -1,0 +1,68 @@
+# =======================================================
+# Parte 3: LSAT y GAP
+# =======================================================
+
+# === a) === #
+LSAT<-c(576, 635, 558, 578, 666, 580, 555, 661, 651, 605, 653, 575, 545, 572, 594)
+GAP<-c(3.39, 3.30, 2.81, 3.03, 3.44, 3.07, 3.0, 3.43, 3.36, 3.13, 3.12, 2.74, 2.76, 2.88, 3.96)
+media_LSAT<-mean(LSAT)
+media_GAP<-mean(GAP)
+Syz<-0
+Syy<-0
+Szz<-0
+for (i in 1:length(GAP)){
+  Syz<-Syz+(LSAT[i]-media_LSAT)*(GAP[i]-media_GAP)
+  Syy<-Syy+(LSAT[i]-media_LSAT)^2
+  Szz<-Szz+(GAP[i]-media_GAP)^2}
+SySz<-sqrt(Syy * Szz)
+corr<-Syz/SySz
+
+cat("Coeficiente de correlación:", corr, "\n")
+
+
+
+
+# === b) === #
+n<-length(LSAT)
+corr_jack<-numeric(n)
+
+for (i in 1:n) {
+  corr_jack[i] <- cor(LSAT[-i], GAP[-i])
+}
+
+corr_bar_jack <- mean(corr_jack)
+cat("Promedio (Jackknife):", corr_bar_jack, "\n")
+se_jack <- sqrt( ((n-1)/n) * sum((corr_jack-corr_bar_jack)^2) )
+cat("Error estándar (Jackknife):", se_jack, "\n")
+
+
+
+
+
+# === c) === #
+B<-1000  
+corr_boot <- numeric(B)
+
+set.seed(123)  # para reproducibilidad
+for (b in 1:B) {
+  idx <- sample(1:n, size = n, replace = TRUE)
+  corr_boot[b] <- cor(LSAT[idx], GAP[idx])
+}
+
+corr_bar_boot <- mean(corr_boot)
+cat("Promedio (Bootstrap):", corr_bar_boot, "\n")
+se_boot <- sd(corr_boot)
+cat("Error estándar (Bootstrap):", se_boot, "\n")
+
+hist(corr_boot, main ="Distribución Bootstrap de la correlación",
+     xlab="Coeficiente de correlación", ylab="Frecuencia", col="lightgreen", border="gray")
+abline(v =corr, col="red", lwd = 2)
+
+
+
+
+# === d) === #
+rho<-cor(LSAT, GAP)
+n<-length(LSAT)
+SE_asint <- sqrt((1-rho^2)^2/(n-1))
+cat("Error estándar (Asintótico):", SE_asint, "\n")
