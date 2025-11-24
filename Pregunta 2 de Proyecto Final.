@@ -1,0 +1,64 @@
+# =======================================================
+# Parte 2: FijiEarhtquake
+# =======================================================
+
+# === a) === #
+url <- "https://www.stat.cmu.edu/~larry/all-of-nonpar/data/fijiquakes.dat"
+
+fijiq <- read.table(url, header = TRUE, fill = TRUE, strip.white = TRUE)
+colnames(fijiq) <- c("obs", "lat", "long", "depth", "mag", "stations")
+
+# Verificar número de datos
+cat("Número de observaciones:", nrow(fijiq), "\n")
+cat("Número de magnitudes no nulas:", sum(!is.na(fijiq$mag)), "\n")
+F_emp <- ecdf(fijiq$mag)
+
+plot(F_emp,
+     main = "Función de distribución empírica de la magnitud (F(x))",
+     xlab = "Magnitud",
+     ylab = "F(x)",
+     col = "skyblue",
+     lwd = 2)
+grid()
+
+
+
+# === b) === #
+alpha <-0.05
+n <-length(fijiq$mag)
+epsilon <-sqrt(log(2/alpha)/(2*n))
+epsilon
+
+x <-seq(min(fijiq$mag), max(fijiq$mag), length.out = 200)
+Fval <-F_emp(x)
+
+Ux <- pmin(Fval+epsilon, 1)
+Lx <- pmax(Fval-epsilon, 0)
+
+lines(x_vals, Ux, col="orangered", lty=2, lwd =2)
+lines(x_vals, Lx, col="orangered", lty= 2, lwd = 2)
+
+legend("topleft",
+       legend = c("F empírica","Bandas del 95%"),
+       col = c("skyblue","orangered"),
+       lty = c(1, 2),
+       lwd = 2)
+grid()
+
+
+
+
+
+# === c) === #
+x1<-4.3
+x2<-4.9
+p_hat <- F_emp(x2)-F_emp(x1)
+p_hat
+
+z <-1.96
+se <- sqrt(p_hat* (1-p_hat)/n)
+IC_lower <- p_hat-z*se
+IC_upper <- p_hat+z*se
+
+c(IC_lower, IC_upper)
+
