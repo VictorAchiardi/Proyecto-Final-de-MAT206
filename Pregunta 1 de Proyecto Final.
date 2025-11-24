@@ -1,0 +1,125 @@
+# =======================================================
+# Parte 1: SalePrice
+# =======================================================
+
+# === a) === #
+library(tidyverse)
+library(ggplot2)
+library(e1071)
+library(moments)
+library(MASS)
+library(VGAM)
+library(fitdistrplus)
+
+ruta<-"C:\\Users\\Hp\\Downloads\\ames-housing.csv"
+datos<-read.csv(ruta)
+
+saleprice<-as.numeric(datos$SalePrice)
+saleprice<-saleprice[!is.na(saleprice)]
+
+
+
+#Análisis descriptivo
+cat("Resumen estadístico de SalePrice:\n")
+print(summary(saleprice))
+cat("Kurtosis de SalePrice:", kurtosis(saleprice), "\n")
+cat("Asimetría de SalePrice:", skewness(saleprice), "\n")
+cat("Media de SalePrice:", mean(saleprice), "\n")
+cat("Desviación estándar de SalePrice:", sd(saleprice), "\n")
+
+#Gráfico
+ggplot(data.frame(SalePrice = saleprice), aes(x = SalePrice)) +
+  geom_histogram(bins = 30, fill = "brown1", color = "black") +
+  geom_density(aes(y = ..scaled..), color = "red", linewidth = 1.2) +
+  labs(title ="Distribución de Variable SalePrice", x="Precio de Venta de casas",y="Frecuencia") +
+  theme_minimal()
+grid()
+
+
+# === b) === #
+set.seed(123)
+
+mu<-180796.1
+sigma<-79886.7
+
+muL<-12.0160
+sigmaL<-0.42231
+
+alpha<-5.12189
+beta<-35298.7
+
+lambda<-3.47424
+theta<-128757.1
+
+
+ks_normal <- ks.test(saleprice, "pnorm", mean = mu, sd = sigma)
+ks_lognormal <- ks.test(saleprice, "plnorm", meanlog = muL, sdlog = sigmaL)
+ks_gamma <- ks.test(saleprice, "pgamma", shape = alpha, scale = beta)
+ks_pareto <- ks.test(saleprice, "ppareto", scale = theta, shape = lambda)
+
+
+resultados <- data.frame(
+  Distribucion = c("Normal", "Log-normal", "Gamma", "Pareto"),
+  Estadistico_D = c(ks_normal$statistic,
+                    ks_lognormal$statistic,
+                    ks_gamma$statistic,
+                    ks_pareto$statistic),
+  P_valor=c(ks_normal$p.value,
+              ks_lognormal$p.value,
+              ks_gamma$p.value,
+              ks_pareto$p.value)
+)
+
+print(resultados)
+
+
+
+
+# === c) === #
+hist(saleprice, 
+     breaks = 30, 
+     freq = FALSE, 
+     col = "brown1", 
+     border = "lightgray",
+     main = "Ajuste de Lognormal sobre distribución SalePrice",
+     xlab = "Precio de venta de casas",
+     ylab = "Densidad")
+
+x <- seq(min(saleprice), max(saleprice), length = 1000)
+lines(x, dlnorm(x, meanlog = muL, sdlog = sigmaL), 
+      col = "darkred", lwd = 2)
+legend("topright",legend="Lognormal (μL, (σL)^2)",col="darkred", lwd = 1)
+grid()
+
+
+
+# === d) === #
+print(ks_normal)
+
+
+
+# === e) === #
+P_mayor_200k <-1-plnorm(200000, meanlog=muL, sdlog=sigmaL)
+P_mayor_200k
+
+
+
+
+# === f) === #
+EX <-exp(muL+(sigmaL^2)/2)
+EX
+
+
+
+
+# === g) === #
+z <- qnorm(0.975)
+
+meanL <-exp(muL + (sigmaL^2)/2)
+seL <-sqrt(exp(sigmaL^2) -1)*meanL
+
+IC_95<-c(meanL - z*seL, meanL + z*seL)
+IC_95
+
+
+
